@@ -5,10 +5,13 @@ import Button from "../ui/Button";
 import GuestSelector from "../ui/GuestSelector";
 
 import hotels from "../../data/hotels";
+import { useNavigate } from "react-router-dom";
 
 const HotelSearchForm = () => {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
+  const [checkIn, setCheckIn] = useState("");
+  const [checkOut, setCheckOut] = useState("");
   const [guests, setGuests] = useState({ adults: 1, children: 0, infants: 0 });
   const [rooms, setRooms] = useState(1);
 
@@ -28,8 +31,23 @@ const HotelSearchForm = () => {
     setSuggestions([]);
   };
 
+  const navigate = useNavigate();
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    navigate("/hotels", {
+      state: {
+        query,
+        checkIn,
+        checkOut,
+        guests,
+        rooms,
+      },
+    });
+  };
+
   return (
-    <form className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+    <form onSubmit={handleSearch} className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
       <div className="relative col-span-1 md:col-span-2">
         <Input
           placeholder="City or Hotel Name"
@@ -51,21 +69,22 @@ const HotelSearchForm = () => {
         )}
       </div>
 
-      <Input type="date" placeholder="Check-in Date" />
-      <Input type="date" placeholder="Check-out Date" />
-        <select
-          className="w-full border border-gray-300 rounded px-3 py-2"
-          value={rooms}
-          onChange={(e) => setRooms(parseInt(e.target.value))}
-        >
-          {[...Array(10).keys()].map((i) => (
-            <option key={i + 1} value={i + 1}>
-              {i + 1} Room{i > 0 ? "s" : ""}
-            </option>
-          ))}
-        </select>
+      <Input type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} />
+      <Input type="date" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} />
 
       <GuestSelector onChange={(val) => setGuests(val)} />
+
+      <select
+        className="w-full border border-gray-300 rounded px-3 py-2"
+        value={rooms}
+        onChange={(e) => setRooms(parseInt(e.target.value))}
+      >
+        {[...Array(10).keys()].map((i) => (
+          <option key={i + 1} value={i + 1}>
+            {i + 1} Room{i > 0 ? "s" : ""}
+          </option>
+        ))}
+      </select>
 
       <p className="text-sm text-gray-600">
         {rooms} Room{rooms > 1 ? "s" : ""} — {guests.adults} Adult
